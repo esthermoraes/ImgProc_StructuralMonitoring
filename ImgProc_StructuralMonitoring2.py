@@ -105,9 +105,3 @@ if __name__ == "__main__":
             salvar_dados_fissuras(bordas_fissuras)
     else:
         print("Nenhuma imagem selecionada.")
-
-'''
-Refinamento da detecção de fissuras: Implementar algoritmos para melhorar a detecção e reduzir falsos positivos.
-Análise contínua: Aplicar o monitoramento ao longo do tempo para detectar evolução das fissuras.
-Integração com sensores adicionais (se necessário): Comparar os dados obtidos via imagem com sensores físicos para validação.
-'''
