@@ -46,7 +46,7 @@ def processar_imagem(caminho_imagem):
     print(estatisticas)
     
     # Visualizando dados
-    plt.hist(df_areas['Área da Fissura'], bins=10, color='blue', alpha=0.7)
+    plt.hist(df_areas['Área da Fissura'], bins=10, color='seagreen', alpha=0.7)
     plt.title('Distribuição das Áreas das Fissuras')
     plt.xlabel('Área da Fissura')
     plt.ylabel('Frequência')
