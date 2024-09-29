@@ -1,7 +1,8 @@
-import cv2
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+# Importando as bibliotecas necessárias
+import cv2             # OpenCV para processamento de imagem
+import numpy as np      # NumPy para manipulação de arrays
+import pandas as pd     # Pandas para manipulação de dados
+import matplotlib.pyplot as plt  # Matplotlib para visualização de dados
 
 # Função para carregar uma imagem e convertê-la em escala de cinza
 def carregar_imagem(caminho_imagem):
