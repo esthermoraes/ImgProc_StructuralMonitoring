@@ -5,34 +5,39 @@ import matplotlib.pyplot as plt
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
-# Função para detectar os pontos na imagem e retornar as coordenadas dos centros
-def detectar_pontos(imagem):
+# Função para ajustar contraste e brilho
+def ajustar_contraste_brilho(imagem, alpha=1.5, beta=30):
+    # Alpha controla o contraste, beta controla o brilho
+    return cv2.convertScaleAbs(imagem, alpha=alpha, beta=beta)
+
+# Função para detectar pontos (círculos) na imagem com pré-processamento
+def detectar_pontos_circulos(imagem):
     # Converte a imagem para escala de cinza
     imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
     
-    # Aplica um leve desfoque para suavizar a imagem
-    imagem_suavizada = cv2.GaussianBlur(imagem_cinza, (5, 5), 0)
+    # Aumenta o contraste e o brilho
+    imagem_ajustada = ajustar_contraste_brilho(imagem_cinza)
     
-    # Aplica o método de Canny para detectar bordas na imagem
+    # Aplica um leve desfoque para reduzir ruído
+    imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (9, 9), 2)
+    
+    # Aplica detecção de bordas
     bordas = cv2.Canny(imagem_suavizada, 50, 150)
     
-    # Encontra os contornos na imagem
-    contornos, _ = cv2.findContours(bordas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Detecta círculos usando a Transformada de Hough
+    circulos = cv2.HoughCircles(bordas, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30,
+                                param1=100, param2=15, minRadius=10, maxRadius=50)
     
     coordenadas_pontos = []
     
-    # Itera sobre os contornos detectados
-    for contorno in contornos:
-        # Calcula a área do contorno para filtrar ruído
-        area = cv2.contourArea(contorno)
+    # Verifica se algum círculo foi detectado
+    if circulos is not None:
+        # Converte as coordenadas dos círculos para inteiros
+        circulos = np.round(circulos[0, :]).astype("int")
         
-        if area > 30:  # Filtra contornos muito pequenos
-            # Calcula o centro de massa do contorno
-            M = cv2.moments(contorno)
-            if M["m00"] != 0:
-                cX = int(M["m10"] / M["m00"])
-                cY = int(M["m01"] / M["m00"])
-                coordenadas_pontos.append((cX, cY))
+        # Itera sobre os círculos detectados
+        for (x, y, r) in circulos:
+            coordenadas_pontos.append((x, y))
     
     return coordenadas_pontos
 
@@ -52,7 +57,7 @@ def exibir_imagem_com_pontos(imagem, coordenadas_pontos):
     # Exibe a imagem com os pontos detectados
     plt.imshow(cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB))  # Converte de BGR para RGB para exibição correta
     for (x, y) in coordenadas_pontos:
-        plt.plot(x, y, 'gx')  # Plota os pontos na imagem como cruzes verdes('gx')
+        plt.plot(x, y, 'gx')  # Plota os pontos na imagem como cruzes verdes ('gx')
     plt.title("Pontos Detectados")
     plt.show()
 
@@ -66,8 +71,8 @@ if __name__ == "__main__":
         imagem = cv2.imread(caminho_imagem)
         
         if imagem is not None:
-            # Detecta os pontos na imagem
-            coordenadas_pontos = detectar_pontos(imagem)
+            # Detecta os pontos (círculos) na imagem
+            coordenadas_pontos = detectar_pontos_circulos(imagem)
 
             # Exibe as coordenadas dos pontos detectados
             print("Coordenadas dos pontos detectados:")
