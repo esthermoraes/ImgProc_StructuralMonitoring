@@ -53,5 +53,5 @@ def processar_imagem(caminho_imagem):
     plt.show()
 
 # Exemplo de uso
-caminho_imagem = 'images.jpg'
+caminho_imagem = 'teste2.jpg'
 processar_imagem(caminho_imagem)
