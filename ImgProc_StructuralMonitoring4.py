@@ -10,21 +10,20 @@ import os
 def ajustar_contraste_brilho(imagem, alpha=1.5, beta=30):
     return cv2.convertScaleAbs(imagem, alpha=alpha, beta=beta)
 
-# Função para detectar pontos (círculos) na imagem com pré-processamento
-def detectar_pontos_circulos(imagem):
+# Função para detectar os cantos (features) da imagem
+def detectar_cantos(imagem):
     imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
     imagem_ajustada = ajustar_contraste_brilho(imagem_cinza)
-    imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (9, 9), 2)
-    bordas = cv2.Canny(imagem_suavizada, 50, 150)
+    imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (5, 5), 0)
     
-    circulos = cv2.HoughCircles(bordas, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30,
-                                param1=100, param2=15, minRadius=10, maxRadius=50)
+    # Usar goodFeaturesToTrack para detectar cantos
+    pontos = cv2.goodFeaturesToTrack(imagem_suavizada, maxCorners=4, qualityLevel=0.01, minDistance=30)
+    pontos = np.int0(pontos)
     
     coordenadas_pontos = []
-    if circulos is not None:
-        circulos = np.round(circulos[0, :]).astype("int")
-        for (x, y, r) in circulos:
-            coordenadas_pontos.append((x, y))
+    for p in pontos:
+        x, y = p.ravel()
+        coordenadas_pontos.append((x, y))
     
     return coordenadas_pontos
 
@@ -58,7 +57,7 @@ if __name__ == "__main__":
         imagem = cv2.imread(caminho_imagem)
         
         if imagem is not None:
-            coordenadas_pontos = detectar_pontos_circulos(imagem)
+            coordenadas_pontos = detectar_cantos(imagem)
 
             print("Coordenadas dos pontos detectados:")
             for i, coord in enumerate(coordenadas_pontos):
