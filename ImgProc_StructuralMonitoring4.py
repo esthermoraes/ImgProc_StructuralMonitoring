@@ -17,7 +17,7 @@ def detectar_cantos(imagem):
     imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (5, 5), 0)
     
     # Usar goodFeaturesToTrack para detectar cantos
-    pontos = cv2.goodFeaturesToTrack(imagem_suavizada, maxCorners=4, qualityLevel=0.01, minDistance=30)
+    pontos = cv2.goodFeaturesToTrack(imagem_suavizada, maxCorners=0, qualityLevel=0.01, minDistance=30)
     pontos = np.int0(pontos)
     
     coordenadas_pontos = []
