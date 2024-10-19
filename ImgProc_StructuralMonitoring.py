@@ -17,7 +17,7 @@ def detectar_cantos(imagem):
     imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (5, 5), 0)
     
     # Usar goodFeaturesToTrack para detectar cantos
-    pontos = cv2.goodFeaturesToTrack(imagem_suavizada, maxCorners=0, qualityLevel=0.01, minDistance=30)
+    pontos = cv2.goodFeaturesToTrack(imagem_suavizada, maxCorners=None, qualityLevel=0.001, minDistance=10)
     pontos = np.int0(pontos)
     
     coordenadas_pontos = []
@@ -49,7 +49,7 @@ def exibir_imagem_com_pontos(imagem, coordenadas_pontos):
     plt.title("Pontos Detectados")
     plt.show()
 
-if __name__ == "__main__":
+def main():
     Tk().withdraw()
     caminho_imagem = askopenfilename(title="Selecione uma imagem", filetypes=[("Imagens", "*.jpg;*.jpeg;*.png;*.bmp")])
 
@@ -69,3 +69,6 @@ if __name__ == "__main__":
             print("Erro ao carregar a imagem.")
     else:
         print("Nenhuma imagem selecionada.")
+
+if __name__ == "__main__":
+    main()
