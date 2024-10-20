@@ -45,7 +45,8 @@ def salvar_dados(coordenadas_pontos, caminho_imagem):
 def exibir_imagem_com_pontos(imagem, coordenadas_pontos):
     plt.imshow(cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB))
     for (x, y) in coordenadas_pontos:
-        plt.plot(x, y, 'gx')  
+        plt.plot(x, y, 'gx')
+    plt.gca().invert_yaxis()  # Inverter o eixo Y para que o zero fique em baixo
     plt.title("Pontos Detectados")
     plt.show()
 
