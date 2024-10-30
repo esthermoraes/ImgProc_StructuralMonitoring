@@ -41,8 +41,8 @@ def calcular_distancias(coordenadas_pontos):
         distancias.append((i + 1, j + 1, distancia))  # Adiciona índices dos pontos e a distância
     return distancias
 
-# Função para salvar os dados de coordenadas em um arquivo CSV dentro da pasta "CSV"
-def salvar_dados(coordenadas_pontos, caminho_imagem):
+# Função para salvar as coordenadas em um arquivo CSV dentro da pasta "CSV"
+def salvar_coordenadas(coordenadas_pontos, caminho_imagem):
     pasta_csv = "csv_coordenadas"
     os.makedirs(pasta_csv, exist_ok=True)  # Cria a pasta se não existir
     
@@ -92,7 +92,7 @@ def main():
                 print(f"Ponto {i + 1}: X = {coord[0]}, Y = {coord[1]}")
 
             # Salvar as coordenadas dos pontos
-            salvar_dados(coordenadas_pontos, caminho_imagem)
+            salvar_coordenadas(coordenadas_pontos, caminho_imagem)
 
             # Calcular e exibir as distâncias em seguida
             distancias = calcular_distancias(coordenadas_pontos)
