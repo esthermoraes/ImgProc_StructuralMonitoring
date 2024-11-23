@@ -5,105 +5,127 @@ import matplotlib.pyplot as plt
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import os
-from itertools import combinations
 import math
 
 # Função para ajustar contraste e brilho
-def ajustar_contraste_brilho(imagem, alpha=1.5, beta=30):
+def ajustar_contraste_brilho(imagem, alpha=1.2, beta=20):
     return cv2.convertScaleAbs(imagem, alpha=alpha, beta=beta)
 
-# Função para detectar os cantos (features) da imagem
-def detectar_cantos(imagem):
-    imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
-    imagem_ajustada = ajustar_contraste_brilho(imagem_cinza)
+# Função para melhorar a imagem
+def melhorar_imagem(imagem_cinza):
+    imagem_equalizada = cv2.equalizeHist(imagem_cinza)
+    imagem_ajustada = ajustar_contraste_brilho(imagem_equalizada, alpha=1.5, beta=30)
     imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (5, 5), 0)
-    
-    # Usar goodFeaturesToTrack para detectar cantos
-    pontos = cv2.goodFeaturesToTrack(imagem_suavizada, maxCorners=None, qualityLevel=0.001, minDistance=10)
-    pontos = np.int32(pontos)  # Corrigido de np.int0 para np.int32
-    
-    coordenadas_pontos = []
-    for p in pontos:
-        x, y = p.ravel()
-        coordenadas_pontos.append((x, y))
-    
-    return coordenadas_pontos
+    return imagem_suavizada
 
-# Função para calcular a distância euclidiana entre dois pontos
+# Função para detectar bordas
+def detectar_bordas(imagem):
+    return cv2.Canny(imagem, threshold1=50, threshold2=150)
+
+# Função para detectar cantos com filtros avançados
+def detectar_cantos_com_filtro(imagem):
+    imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
+    imagem_melhorada = melhorar_imagem(imagem_cinza)
+    bordas = detectar_bordas(imagem_melhorada)
+    mascara = cv2.dilate(bordas, None, iterations=2)
+    
+    pontos = cv2.goodFeaturesToTrack(
+        bordas,
+        maxCorners=50,          # Limitar número de cantos detectados
+        qualityLevel=0.1,       # Tornar mais seletivo
+        minDistance=20,         # Distância mínima entre pontos
+        mask=mascara            # Usar máscara para restringir áreas de interesse
+    )
+    
+    if pontos is None:
+        print("Nenhum ponto detectado após aplicação do filtro.")
+        return []
+    
+    pontos = np.int32(pontos)
+    return [(p[0][0], p[0][1]) for p in pontos]
+
+# Função para filtrar pontos muito próximos
+def filtrar_pontos(coordenadas_pontos, limiar_distancia=15):
+    pontos_filtrados = []
+    for ponto in coordenadas_pontos:
+        if not pontos_filtrados:
+            pontos_filtrados.append(ponto)
+        elif all(calcular_distancia(ponto, p) > limiar_distancia for p in pontos_filtrados):
+            pontos_filtrados.append(ponto)
+    return pontos_filtrados
+
+# Função para calcular distância euclidiana entre dois pontos
 def calcular_distancia(pontoA, pontoB):
     return math.sqrt((pontoB[0] - pontoA[0]) ** 2 + (pontoB[1] - pontoA[1]) ** 2)
 
-# Função para calcular as distâncias entre todos os pontos
-def calcular_distancias(coordenadas_pontos):
+# Função para calcular distâncias a partir do primeiro ponto
+def calcular_distancias_a_partir_do_inicial(coordenadas_pontos):
     distancias = []
-    for (i, pontoA), (j, pontoB) in combinations(enumerate(coordenadas_pontos), 2):
-        distancia = calcular_distancia(pontoA, pontoB)
-        distancias.append((i + 1, j + 1, distancia))  # Adiciona índices dos pontos e a distância
+    if coordenadas_pontos:
+        ponto_inicial = coordenadas_pontos[0]
+        for i, ponto in enumerate(coordenadas_pontos):
+            if i == 0:
+                continue
+            distancia = calcular_distancia(ponto_inicial, ponto)
+            distancias.append((1, i + 1, distancia))
     return distancias
 
-# Função para salvar as coordenadas em um arquivo CSV dentro da pasta "CSV"
+# Função para salvar coordenadas em CSV
 def salvar_coordenadas(coordenadas_pontos, caminho_imagem):
     pasta_csv = "csv_coordenadas"
-    os.makedirs(pasta_csv, exist_ok=True)  # Cria a pasta se não existir
-    
-    nome_arquivo = os.path.splitext(os.path.basename(caminho_imagem))[0]  # Pega o nome da imagem sem extensão
-    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_coordenadas.csv")  # Cria o caminho completo do CSV
-    
+    os.makedirs(pasta_csv, exist_ok=True)
+    nome_arquivo = os.path.splitext(os.path.basename(caminho_imagem))[0]
+    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_coordenadas.csv")
     df_pontos = pd.DataFrame(coordenadas_pontos, columns=["X", "Y"])
     df_pontos.to_csv(nome_csv, index=False)
-    
     print(f"Coordenadas salvas em '{nome_csv}'")
 
-# Função para salvar as distâncias em um arquivo CSV dentro da pasta "CSV"
+# Função para salvar distâncias em CSV
 def salvar_distancias(distancias, caminho_imagem):
     pasta_csv = "csv_distancias"
-    os.makedirs(pasta_csv, exist_ok=True)  # Cria a pasta se não existir
-    
-    nome_arquivo = os.path.splitext(os.path.basename(caminho_imagem))[0]  # Pega o nome da imagem sem extensão
-    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_distancias.csv")  # Cria o caminho completo do CSV
-    
-    df_distancias = pd.DataFrame(distancias, columns=["Ponto A", " Ponto B", " Distância"])
+    os.makedirs(pasta_csv, exist_ok=True)
+    nome_arquivo = os.path.splitext(os.path.basename(caminho_imagem))[0]
+    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_distancias.csv")
+    df_distancias = pd.DataFrame(distancias, columns=["Ponto A", "Ponto B", "Distância"])
     df_distancias.to_csv(nome_csv, index=False)
-    
     print(f"Distâncias salvas em '{nome_csv}'")
 
-# Função para exibir a imagem e os pontos detectados
+# Função para exibir imagem com pontos detectados
 def exibir_imagem_com_pontos(imagem, coordenadas_pontos):
     plt.imshow(cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB))
     for (x, y) in coordenadas_pontos:
         plt.plot(x, y, 'gx')
-    plt.gca().invert_yaxis()  # Inverter o eixo Y para que o zero fique em baixo
+    plt.gca().invert_yaxis()
     plt.title("Pontos Detectados")
     plt.show()
 
+# Função principal
 def main():
     Tk().withdraw()
     caminho_imagem = askopenfilename(title="Selecione uma imagem", filetypes=[("Imagens", "*.jpg;*.jpeg;*.png;*.bmp")])
 
     if caminho_imagem:
         imagem = cv2.imread(caminho_imagem)
-        
         if imagem is not None:
-            coordenadas_pontos = detectar_cantos(imagem)
+            coordenadas_pontos = detectar_cantos_com_filtro(imagem)
+            coordenadas_pontos = filtrar_pontos(coordenadas_pontos, limiar_distancia=20)
 
-            # Exibe as coordenadas primeiro
+            if not coordenadas_pontos:
+                print("Não foi possível detectar pontos na imagem.")
+                return
+            
             print("Coordenadas dos pontos detectados:")
             for i, coord in enumerate(coordenadas_pontos):
                 print(f"Ponto {i + 1}: X = {coord[0]}, Y = {coord[1]}")
 
-            # Salvar as coordenadas dos pontos
             salvar_coordenadas(coordenadas_pontos, caminho_imagem)
 
-            # Calcular e exibir as distâncias em seguida
-            distancias = calcular_distancias(coordenadas_pontos)
-            print("\nDistâncias entre os pontos:")
+            distancias = calcular_distancias_a_partir_do_inicial(coordenadas_pontos)
+            print("\nDistâncias a partir do ponto inicial:")
             for dist in distancias:
                 print(f"Distância entre Ponto {dist[0]} e Ponto {dist[1]}: {dist[2]:.2f}")
 
-            # Salvar as distâncias
             salvar_distancias(distancias, caminho_imagem)
-
-            # Exibir a imagem com os pontos
             exibir_imagem_com_pontos(imagem, coordenadas_pontos)
         else:
             print("Erro ao carregar a imagem.")
