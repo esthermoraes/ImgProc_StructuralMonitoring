@@ -29,7 +29,7 @@ def detectar_cantos(imagem):
 
 # Função para salvar os dados de coordenadas em um arquivo CSV dentro da pasta "CSV"
 def salvar_dados(coordenadas_pontos, caminho_imagem):
-    pasta_csv = "csv"
+    pasta_csv = "csv_coordenadas"
     os.makedirs(pasta_csv, exist_ok=True)  # Cria a pasta se não existir
     
     nome_arquivo = os.path.splitext(os.path.basename(caminho_imagem))[0]  # Pega o nome da imagem sem extensão
@@ -51,7 +51,7 @@ def exibir_imagem_com_pontos(imagem, coordenadas_pontos):
 
 def main():
     Tk().withdraw()
-    caminho_imagem = askopenfilename(title="Selecione uma imagem", filetypes=[("Imagens", "*.jpg;*.jpeg;*.png;*.bmp")])
+    caminho_imagem = askopenfilename(title="Selecione uma imagem", filetypes=[("Imagens", ".jpg;.jpeg;.png;.bmp")])
 
     if caminho_imagem:
         imagem = cv2.imread(caminho_imagem)
@@ -65,7 +65,6 @@ def main():
 
             salvar_dados(coordenadas_pontos, caminho_imagem)
             exibir_imagem_com_pontos(imagem, coordenadas_pontos)
-            
         else:
             print("Erro ao carregar a imagem.")
     else:
