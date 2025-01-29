@@ -105,6 +105,7 @@ def main():
 
             # Exibir a imagem com os pontos
             exibir_imagem_com_pontos(imagem, coordenadas_pontos)
+            
         else:
             print("Erro ao carregar a imagem.")
     else:

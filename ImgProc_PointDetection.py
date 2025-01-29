@@ -51,7 +51,7 @@ def exibir_imagem_com_pontos(imagem, coordenadas_pontos):
 
 def main():
     Tk().withdraw()
-    caminho_imagem = askopenfilename(title="Selecione uma imagem", filetypes=[("Imagens", ".jpg;.jpeg;.png;.bmp")])
+    caminho_imagem = askopenfilename(title="Selecione uma imagem", filetypes=[("Imagens", "*.jpg;*.jpeg;*.png;*.bmp")])
 
     if caminho_imagem:
         imagem = cv2.imread(caminho_imagem)
@@ -65,6 +65,7 @@ def main():
 
             salvar_dados(coordenadas_pontos, caminho_imagem)
             exibir_imagem_com_pontos(imagem, coordenadas_pontos)
+            
         else:
             print("Erro ao carregar a imagem.")
     else:
