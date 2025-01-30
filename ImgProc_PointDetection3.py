@@ -27,7 +27,7 @@ def processar_imagem(imagem):
 def detectar_cantos(imagem):
     imagem_processada = processar_imagem(imagem)
 
-    maxCorners = 100  # Aumentado para detectar mais pontos
+    maxCorners = 0  # Aumentado para detectar mais pontos
     qualityLevel = 0.01  # Reduzido para detectar mais pontos fracos
     minDistance = 5  # Reduzido para detectar pontos próximos
 
