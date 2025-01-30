@@ -10,38 +10,33 @@ import os
 def ajustar_contraste_brilho(imagem, alpha=1.5, beta=30):
     return cv2.convertScaleAbs(imagem, alpha=alpha, beta=beta)
 
-# Detectar cantos na imagem
-def detectar_cantos(imagem):
+# Processar a imagem para detectar pontos escuros e claros
+def processar_imagem(imagem):
     imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
     imagem_ajustada = ajustar_contraste_brilho(imagem_cinza)
-    imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (5, 5), 0)
-    
-    # Ajustando parâmetros para detecção de pontos
-    maxCorners = 0  # Limite máximo de pontos a serem detectados
-    qualityLevel = 0.05  # Aumentado para filtrar pontos de qualidade mais baixa
-    minDistance = 10  # Distância mínima entre pontos
 
-    # Detecta pontos com goodFeaturesToTrack
-    pontos = cv2.goodFeaturesToTrack(imagem_suavizada, maxCorners=maxCorners, qualityLevel=qualityLevel, minDistance=minDistance)
+    # Aplicar um filtro Gaussiano para suavizar ruídos
+    imagem_suavizada = cv2.GaussianBlur(imagem_ajustada, (5, 5), 0)
+
+    # Aplicar um detector de bordas para realçar pontos destacados
+    bordas = cv2.Canny(imagem_suavizada, 50, 150)
+
+    return bordas
+
+# Detectar cantos na imagem processada
+def detectar_cantos(imagem):
+    imagem_processada = processar_imagem(imagem)
+
+    maxCorners = 100  # Aumentado para detectar mais pontos
+    qualityLevel = 0.01  # Reduzido para detectar mais pontos fracos
+    minDistance = 5  # Reduzido para detectar pontos próximos
+
+    # Detectar pontos de interesse
+    pontos = cv2.goodFeaturesToTrack(imagem_processada, maxCorners=maxCorners, qualityLevel=qualityLevel, minDistance=minDistance)
 
     if pontos is not None:
         pontos = pontos.astype(int)
-
-        # Lista para armazenar os pontos filtrados
-        coordenadas_pontos = []
-
-        for p in pontos:
-            x, y = p[0]
-            # Verificar se o ponto é suficientemente distante dos outros pontos
-            is_distante = True
-            for (px, py) in coordenadas_pontos:
-                if np.linalg.norm(np.array([x, y]) - np.array([px, py])) < minDistance:
-                    is_distante = False
-                    break
-            if is_distante:
-                coordenadas_pontos.append((x, y))
-
-        return coordenadas_pontos
+        return [(p[0][0], p[0][1]) for p in pontos]
     else:
         return []
 
@@ -62,7 +57,7 @@ def salvar_dados(coordenadas_pontos, caminho_imagem):
 def exibir_imagem_com_pontos(imagem, coordenadas_pontos):
     plt.imshow(cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB))
     for (x, y) in coordenadas_pontos:
-        plt.plot(x, y, 'gx')
+        plt.plot(x, y, 'gx', markersize=5)
     plt.gca().invert_yaxis()
     plt.title(f"Pontos Detectados ({len(coordenadas_pontos)})")
     plt.show()
