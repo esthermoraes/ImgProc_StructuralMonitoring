@@ -29,11 +29,11 @@ def detectar_cantos(imagem):
 
 # Função para salvar os dados de coordenadas em um arquivo CSV dentro da pasta "CSV"
 def salvar_dados(coordenadas_pontos, caminho_imagem):
-    pasta_csv = "csv_coordenadas"
+    pasta_csv = "csv_coordinates"
     os.makedirs(pasta_csv, exist_ok=True)  # Cria a pasta se não existir
     
     nome_arquivo = os.path.splitext(os.path.basename(caminho_imagem))[0]  # Pega o nome da imagem sem extensão
-    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_coordenadas.csv")  # Cria o caminho completo do CSV
+    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_coordinates.csv")  # Cria o caminho completo do CSV
     
     df_pontos = pd.DataFrame(coordenadas_pontos, columns=["X", "Y"])
     df_pontos.to_csv(nome_csv, index=False)

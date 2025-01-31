@@ -47,11 +47,11 @@ def detectar_cantos(imagem):
 
 # Salvar pontos em CSV
 def salvar_dados(coordenadas_pontos, caminho_imagem):
-    pasta_csv = "csv_coordenadas"
+    pasta_csv = "csv_coordinates"
     os.makedirs(pasta_csv, exist_ok=True)
     
     nome_arquivo = os.path.splitext(os.path.basename(caminho_imagem))[0]
-    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_coordenadas.csv")
+    nome_csv = os.path.join(pasta_csv, f"{nome_arquivo}_coordinates.csv")
     
     df_pontos = pd.DataFrame(coordenadas_pontos, columns=["X", "Y"])
     df_pontos.to_csv(nome_csv, index=False)
