@@ -42,7 +42,7 @@ def calcular_distancias(coordenadas_pontos):
     return distancias
 
 # Função para salvar os dados de coordenadas em um arquivo CSV dentro da pasta "CSV"
-def salvar_dados(coordenadas_pontos, caminho_imagem):
+def salvar_coordenadas(coordenadas_pontos, caminho_imagem):
     pasta_csv = "csv_coordinates"
     os.makedirs(pasta_csv, exist_ok=True)  # Cria a pasta se não existir
     
@@ -92,7 +92,7 @@ def main():
                 print(f"Ponto {i + 1}: X = {coord[0]}, Y = {coord[1]}")
 
             # Salvar as coordenadas dos pontos
-            salvar_dados(coordenadas_pontos, caminho_imagem)
+            salvar_coordenadas(coordenadas_pontos, caminho_imagem)
 
             # Calcular e exibir as distâncias em seguida
             distancias = calcular_distancias(coordenadas_pontos)

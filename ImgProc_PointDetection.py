@@ -28,7 +28,7 @@ def detectar_cantos(imagem):
     return coordenadas_pontos
 
 # Função para salvar os dados de coordenadas em um arquivo CSV dentro da pasta "CSV"
-def salvar_dados(coordenadas_pontos, caminho_imagem):
+def salvar_coordenadas(coordenadas_pontos, caminho_imagem):
     pasta_csv = "csv_coordinates"
     os.makedirs(pasta_csv, exist_ok=True)  # Cria a pasta se não existir
     
@@ -63,7 +63,7 @@ def main():
             for i, coord in enumerate(coordenadas_pontos):
                 print(f"Ponto {i + 1}: X = {coord[0]}, Y = {coord[1]}")
 
-            salvar_dados(coordenadas_pontos, caminho_imagem)
+            salvar_coordenadas(coordenadas_pontos, caminho_imagem)
             exibir_imagem_com_pontos(imagem, coordenadas_pontos)
         else:
             print("Erro ao carregar a imagem.")
