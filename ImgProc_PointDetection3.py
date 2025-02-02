@@ -70,7 +70,6 @@ def detectar_cantos(imagem):
     else:
         return []
 
-
 # Salvar pontos em CSV
 def salvar_coordenadas(coordenadas_pontos, caminho_imagem):
     pasta_csv = "csv_coordinates"
