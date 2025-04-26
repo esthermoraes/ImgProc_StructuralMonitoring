@@ -105,30 +105,36 @@ def main():
     caminho_imagem = askopenfilename(title="Selecione uma imagem", filetypes=[("Imagens", "*.jpg;*.jpeg;*.png;*.bmp")])
 
     if caminho_imagem:
+        print(f"Caminho da imagem selecionada: {caminho_imagem}")
+        
+        # Tentar ler a imagem com um caminho de arquivo absoluto
         imagem = cv2.imread(caminho_imagem)
-        if imagem is not None:
-            coordenadas_pontos = detectar_cantos_com_filtro(imagem)
-            coordenadas_pontos = filtrar_pontos(coordenadas_pontos, limiar_distancia=20)
+        
+        if imagem is None:
+            print("Erro ao carregar a imagem. Verifique se o caminho está correto ou se a imagem está corrompida.")
+            return
 
-            if not coordenadas_pontos:
-                print("Não foi possível detectar pontos na imagem.")
-                return
-            
-            print("Coordenadas dos pontos detectados:")
-            for i, coord in enumerate(coordenadas_pontos):
-                print(f"Ponto {i + 1}: X = {coord[0]}, Y = {coord[1]}")
+        # Se a imagem for carregada corretamente, prossiga com o processamento
+        coordenadas_pontos = detectar_cantos_com_filtro(imagem)
+        coordenadas_pontos = filtrar_pontos(coordenadas_pontos, limiar_distancia=20)
 
-            salvar_coordenadas(coordenadas_pontos, caminho_imagem)
+        if not coordenadas_pontos:
+            print("Não foi possível detectar pontos na imagem.")
+            return
+        
+        print("Coordenadas dos pontos detectados:")
+        for i, coord in enumerate(coordenadas_pontos):
+            print(f"Ponto {i + 1}: X = {coord[0]}, Y = {coord[1]}")
 
-            distancias = calcular_distancias_a_partir_do_inicial(coordenadas_pontos)
-            print("\nDistâncias a partir do ponto inicial:")
-            for dist in distancias:
-                print(f"Distância entre Ponto {dist[0]} e Ponto {dist[1]}: {dist[2]:.2f}")
+        salvar_coordenadas(coordenadas_pontos, caminho_imagem)
 
-            salvar_distancias(distancias, caminho_imagem)
-            exibir_imagem_com_pontos(imagem, coordenadas_pontos)
-        else:
-            print("Erro ao carregar a imagem.")
+        distancias = calcular_distancias_a_partir_do_inicial(coordenadas_pontos)
+        print("\nDistâncias a partir do ponto inicial:")
+        for dist in distancias:
+            print(f"Distância entre Ponto {dist[0]} e Ponto {dist[1]}: {dist[2]:.2f}")
+
+        salvar_distancias(distancias, caminho_imagem)
+        exibir_imagem_com_pontos(imagem, coordenadas_pontos)
     else:
         print("Nenhuma imagem selecionada.")
 
