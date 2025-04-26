@@ -31,7 +31,7 @@ def detectar_cantos_com_filtro(imagem):
     
     pontos = cv2.goodFeaturesToTrack(
         bordas,
-        maxCorners=50,          # Limitar número de cantos detectados
+        maxCorners=1000,          # Limitar número de cantos detectados
         qualityLevel=0.1,       # Tornar mais seletivo
         minDistance=20,         # Distância mínima entre pontos
         mask=mascara            # Usar máscara para restringir áreas de interesse
